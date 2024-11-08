@@ -146,10 +146,11 @@ const PORT = 5000;
 
 // Middleware
 app.use(cors({
-  origin:  'https://portfolio-teal-eight-46.vercel.app/', // Adjust this to match your Vite dev server port'http://localhost:4000',
+  origin: 'https://portfolio-teal-eight-46.vercel.app',  // Remove the trailing slash
   methods: ['GET', 'POST'],
-  credentials: true
+  credentials: true,
 }));
+
 app.use(bodyParser.json());
 
 // Create MySQL connection
