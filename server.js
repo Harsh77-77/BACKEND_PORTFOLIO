@@ -309,11 +309,12 @@ const app = express();
 const PORT = 5000;
 
 // Middleware
-app.use(cors({
-  origin: 'https://portfolio-teal-eight-46.vercel.app', // Add the frontend domain
-  methods: ['GET', 'POST', 'OPTIONS'], // Include OPTIONS method
-  credentials: true,
-}));
+app.use((req, res, next) => {  
+  res.header("Access-Control-Allow-Origin", "*");  
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");  
+  next();  
+});
+
 
 // Preflight (OPTIONS) request handling (can be explicit)
 app.options('*', (req, res) => {
