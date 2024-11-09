@@ -412,7 +412,7 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configuration
 app.use(cors({
-  origin: 'https://portfolio-teal-eight-46.vercel.app',
+  origin: process.env.CORS_ORIGIN || 'https://portfolio-teal-eight-46.vercel.app',
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
