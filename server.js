@@ -299,6 +299,7 @@
 // });
 
 
+
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -307,12 +308,24 @@ const cors = require('cors');
 const app = express();
 const PORT = 5000;
 
-// CORS Middleware
-app.use(cors({
-  origin: 'https://portfolio-teal-eight-46.vercel.app',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// Middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  next();
+});
+
+
+
+
+// Preflight (OPTIONS) request handling (can be explicit)
+app.options('*', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app'); // Set allowed origin
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Set allowed methods
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Set allowed headers
+  res.status(200).end(); // Respond with 200 status
+});
 
 app.use(bodyParser.json());
 
@@ -338,15 +351,16 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Contact Form API' });
 });
 
-// Test route
+// Test route to check if server is running
 app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working!' });
 });
 
-// Contact submission route
+// Endpoint to insert contact data
 app.post('/api/submit-contact', (req, res) => {
   const { username, email, phone_no, message } = req.body;
-
+  
+  // Validate required fields
   if (!username || !email || !phone_no || !message) {
     return res.status(400).json({ error: 'Please provide all required fields' });
   }
@@ -369,7 +383,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something broke!' });
 });
 
-// 404 handler
+// Handle 404 routes
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
