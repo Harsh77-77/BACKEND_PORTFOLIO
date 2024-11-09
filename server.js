@@ -298,7 +298,6 @@
 //   console.log(`Server is running on http://localhost:${PORT}`);
 // });
 
-
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -307,13 +306,14 @@ const cors = require('cors');
 const app = express();
 const PORT = 5000;
 
-// Configure CORS to allow requests from your frontend domain
+// Use CORS middleware with specific origin
 app.use(cors({
-  origin: 'https://portfolio-teal-eight-46.vercel.app', // Replace with your frontend's URL
+  origin: 'https://portfolio-teal-eight-46.vercel.app', // Replace with your frontend URL
   methods: 'GET, POST, OPTIONS',
   allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept'
 }));
 
+// Middleware for parsing JSON
 app.use(bodyParser.json());
 
 // Create MySQL connection
@@ -333,6 +333,14 @@ db.connect(err => {
   }
 });
 
+// Preflight (OPTIONS) request handling
+app.options('*', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app'); // Allow specific origin
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Allow specific methods
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specific headers
+  res.status(200).end(); // Respond with a 200 status
+});
+
 // Root route handler
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Contact Form API' });
@@ -346,14 +354,14 @@ app.get('/api/test', (req, res) => {
 // Endpoint to insert contact data
 app.post('/api/submit-contact', (req, res) => {
   const { username, email, phone_no, message } = req.body;
-  
+
   // Validate required fields
   if (!username || !email || !phone_no || !message) {
     return res.status(400).json({ error: 'Please provide all required fields' });
   }
 
   const query = 'INSERT INTO contacts (username, email, phone_no, message) VALUES (?, ?, ?, ?)';
-  
+
   db.query(query, [username, email, phone_no, message], (err, result) => {
     if (err) {
       console.error('Error inserting data:', err);
