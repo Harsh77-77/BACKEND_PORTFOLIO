@@ -420,7 +420,7 @@ app.use(cors({
 
 app.use(express.json());
 
-// MySQL connection (make sure to use environment variables for sensitive information)
+// MySQL connection (use environment variables in production)
 const db = mysql.createConnection({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
@@ -435,6 +435,9 @@ db.connect(err => {
     console.log('Connected to MySQL database');
   }
 });
+
+// Preflight request handling
+app.options('*', cors());
 
 // Submit contact form endpoint
 app.post('/api/submit-contact', (req, res) => {
@@ -459,6 +462,3 @@ app.post('/api/submit-contact', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-// Log to check if the server is running
-console.log('Server is starting...');
