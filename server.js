@@ -418,12 +418,8 @@ app.use(cors({
 
 
 // Preflight (OPTIONS) request handling (can be explicit)
-app.options('*', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app'); // Set allowed origin
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Set allowed methods
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Set allowed headers
-  res.status(200).end(); // Respond with 200 status
-});
+app.options('*', cors()); // Handle preflight requests for all routes
+
 
 app.use(bodyParser.json());
 
