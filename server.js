@@ -299,7 +299,6 @@
 // });
 
 
-
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -308,24 +307,12 @@ const cors = require('cors');
 const app = express();
 const PORT = 5000;
 
-// Middleware
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  next();
-});
-
-
-
-
-// Preflight (OPTIONS) request handling (can be explicit)
-app.options('*', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app'); // Set allowed origin
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Set allowed methods
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Set allowed headers
-  res.status(200).end(); // Respond with 200 status
-});
+// Configure CORS to allow requests from your frontend domain
+app.use(cors({
+  origin: 'https://portfolio-teal-eight-46.vercel.app', // Replace with your frontend's URL
+  methods: 'GET, POST, OPTIONS',
+  allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept'
+}));
 
 app.use(bodyParser.json());
 
