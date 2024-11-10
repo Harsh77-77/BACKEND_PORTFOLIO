@@ -23,25 +23,31 @@ module.exports = async (req, res) => {
 
       let connection;
       try {
+        console.log('Attempting to connect to database...');
         connection = await mysql.createConnection({
-          host: process.env.DB_HOST,
-          user: process.env.DB_USER,
-          password: process.env.DB_PASSWORD,
-          database: process.env.DB_NAME,
-          ssl: {
-            rejectUnauthorized: true
-          }
+          host: 'localhost',
+          user: 'root',
+          password: '12345',
+          database: 'contact_db'
         });
+        console.log('Database connection successful');
 
         const query = 'INSERT INTO contacts (username, email, phone_no, message) VALUES (?, ?, ?, ?)';
+        console.log('Executing query:', query);
+        console.log('Query parameters:', [username, email, phone_no, message]);
+        
         await connection.execute(query, [username, email, phone_no, message]);
+        console.log('Query executed successfully');
 
         res.status(201).json({ message: 'Contact details saved successfully' });
       } catch (error) {
-        console.error('Database error:', error);
-        res.status(500).json({ error: 'Error saving contact details', details: error.message });
+        console.error('Detailed error:', error);
+        res.status(500).json({ error: 'Error saving contact details', details: error.message, stack: error.stack });
       } finally {
-        if (connection) await connection.end();
+        if (connection) {
+          console.log('Closing database connection');
+          await connection.end();
+        }
       }
     } else {
       res.setHeader('Allow', ['POST']);
