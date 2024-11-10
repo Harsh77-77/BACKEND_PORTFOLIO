@@ -400,65 +400,52 @@
 
 
 
-
-
-
 const express = require('express');
-const mysql = require('mysql2');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const { MongoClient } = require('mongodb');
+const submitContact = require('./api/submit-contact');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
-// CORS configuration
+// Middleware setup
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'https://portfolio-teal-eight-46.vercel.app',
+  origin: 'https://portfolio-teal-eight-46.vercel.app',
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.use(bodyParser.json());
 
-app.use(express.json());
+// MongoDB connection URI
+const uri = "mongodb+srv://harshsingh:ROdKGyPr3KV1hz7D@cluster0.aysdj.mongodb.net/";
+const client = new MongoClient(uri);
 
-// MySQL connection (use environment variables in production)
-const db = mysql.createConnection({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '12345',
-  database: process.env.DB_NAME || 'contact_db'
-});
-
-db.connect(err => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err);
-  } else {
-    console.log('Connected to MySQL database');
-  }
-});
-
-// Preflight request handling
-app.options('*', cors());
-
-// Submit contact form endpoint
-app.post('/api/submit-contact', (req, res) => {
-  const { username, email, phone_no, message } = req.body;
-  
-  if (!username || !email || !phone_no || !message) {
-    return res.status(400).json({ error: 'Please provide all required fields' });
-  }
-
-  const query = 'INSERT INTO contacts (username, email, phone_no, message) VALUES (?, ?, ?, ?)';
-  
-  db.query(query, [username, email, phone_no, message], (err, result) => {
-    if (err) {
-      console.error('Error inserting data:', err);
-      res.status(500).json({ error: 'Error saving contact details' });
-    } else {
-      res.status(201).json({ message: 'Contact details saved successfully' });
+// Middleware to handle MongoDB connection for each request
+app.use(async (req, res, next) => {
+  try {
+    if (!client.isConnected()) {
+      await client.connect();
+      console.log('Connected successfully to MongoDB');
     }
-  });
+    req.dbClient = client;
+    req.contactsCollection = client.db("contact_db").collection("contacts");
+    next();
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
+    res.status(500).json({ error: 'Database connection failed' });
+  }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Routes
+app.post('/api/submit-contact', submitContact);
+
+// Vercel configuration for API entry point
+module.exports = app;
+
+// Optional listener for local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+  });
+}
