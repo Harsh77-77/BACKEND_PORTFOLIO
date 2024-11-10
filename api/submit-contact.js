@@ -24,10 +24,13 @@ module.exports = async (req, res) => {
       let connection;
       try {
         connection = await mysql.createConnection({
-          host: 'localhost', // Your MySQL host
-          user: 'root',      // Your MySQL username
-          password: '12345',      // Your MySQL password
-          database: 'contact_db' 
+          host: process.env.DB_HOST,
+          user: process.env.DB_USER,
+          password: process.env.DB_PASSWORD,
+          database: process.env.DB_NAME,
+          ssl: {
+            rejectUnauthorized: true
+          }
         });
 
         const query = 'INSERT INTO contacts (username, email, phone_no, message) VALUES (?, ?, ?, ?)';
