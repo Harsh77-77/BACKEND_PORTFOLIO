@@ -1,5 +1,5 @@
+const { MongoClient } = require('mongodb');
 const cors = require('cors');
-const mysql = require('mysql2/promise');
 
 const corsMiddleware = cors({
   origin: 'https://portfolio-teal-eight-46.vercel.app',
@@ -7,6 +7,9 @@ const corsMiddleware = cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 });
+
+const uri = "mongodb+srv://harshsingh:ROdKGyPr3KV1hz7D@cluster0.aysdj.mongodb.net/";
+const client = new MongoClient(uri);
 
 module.exports = async (req, res) => {
   await corsMiddleware(req, res, async () => {
@@ -21,33 +24,22 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Please provide all required fields' });
       }
 
-      let connection;
       try {
-        console.log('Attempting to connect to database...');
-        connection = await mysql.createConnection({
-          host: 'localhost',
-          user: 'root',
-          password: '12345',
-          database: 'contact_db'
-        });
-        console.log('Database connection successful');
+        await client.connect();
+        console.log('Connected successfully to MongoDB');
 
-        const query = 'INSERT INTO contacts (username, email, phone_no, message) VALUES (?, ?, ?, ?)';
-        console.log('Executing query:', query);
-        console.log('Query parameters:', [username, email, phone_no, message]);
-        
-        await connection.execute(query, [username, email, phone_no, message]);
-        console.log('Query executed successfully');
+        const database = client.db("contact_db");
+        const contacts = database.collection("contacts");
+
+        const result = await contacts.insertOne({ username, email, phone_no, message });
+        console.log(`Inserted document with _id: ${result.insertedId}`);
 
         res.status(201).json({ message: 'Contact details saved successfully' });
       } catch (error) {
-        console.error('Detailed error:', error);
-        res.status(500).json({ error: 'Error saving contact details', details: error.message, stack: error.stack });
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Error saving contact details', details: error.message });
       } finally {
-        if (connection) {
-          console.log('Closing database connection');
-          await connection.end();
-        }
+        await client.close();
       }
     } else {
       res.setHeader('Allow', ['POST']);
