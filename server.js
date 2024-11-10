@@ -409,7 +409,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: 'https://portfolio-teal-eight-46.vercel.app', // Replace with your frontend URL
+  origin: 'https://portfolio-teal-eight-46.vercel.app', 
   methods: 'GET, POST, OPTIONS',
   allowedHeaders: 'Content-Type, Authorization',
   credentials: true // Ensure this is set to true for credentials
