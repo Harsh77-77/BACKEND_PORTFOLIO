@@ -2,21 +2,20 @@ const { MongoClient } = require('mongodb');
 const cors = require('cors');
 
 module.exports = async (req, res) => {
-  // Handle CORS directly in the function
   res.setHeader('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Credentials', 'true'); // Include this header
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
   try {
-    // MongoDB connection logic...
+    // Database connection and logic...
     await client.connect();
     console.log('Connected successfully to MongoDB');
-    
+
     const database = client.db("contact_db");
     const contacts = database.collection("contacts");
 

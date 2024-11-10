@@ -397,53 +397,35 @@
 // });
 
 
-
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const { MongoClient } = require('mongodb');
+const path = require('path');
 const submitContact = require('./api/submit-contact');
+const setupMongoDB = require('./api/setup-mongodb');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-// Middleware setup
+// Middleware
+app.use(express.json());
 app.use(cors({
-  origin: 'https://portfolio-teal-eight-46.vercel.app',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: 'https://portfolio-teal-eight-46.vercel.app', // Replace with your frontend URL
+  methods: 'GET, POST, OPTIONS',
+  allowedHeaders: 'Content-Type, Authorization',
+  credentials: true // Ensure this is set to true for credentials
 }));
-app.use(bodyParser.json());
-
-// MongoDB connection URI
-const uri = "mongodb+srv://harshsingh:ROdKGyPr3KV1hz7D@cluster0.aysdj.mongodb.net/";
-const client = new MongoClient(uri);
-
-// Middleware to handle MongoDB connection for each request
-app.use(async (req, res, next) => {
-  try {
-    if (!client.isConnected()) {
-      await client.connect();
-      console.log('Connected successfully to MongoDB');
-    }
-    req.dbClient = client;
-    req.contactsCollection = client.db("contact_db").collection("contacts");
-    next();
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    res.status(500).json({ error: 'Database connection failed' });
-  }
-});
 
 // Routes
 app.post('/api/submit-contact', submitContact);
 
-// Vercel configuration for API entry point
-module.exports = app;
+// Health check route (optional)
+app.get('/', (req, res) => {
+  res.send('Server is running');
+});
 
-// Optional listener for local development
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
-  });
-}
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+  // Run MongoDB setup (for initial setup)
+  setupMongoDB();
+});
