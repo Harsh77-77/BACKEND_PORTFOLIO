@@ -94,10 +94,11 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware for CORS
 app.use(cors({
-  origin: 'https://portfolio-teal-eight-46.vercel.app', // Replace with your frontend URL
+  origin: 'https://portfolio-teal-eight-46.vercel.app', // Specify your frontend domain here
   methods: 'GET, POST, OPTIONS',
   allowedHeaders: 'Content-Type',
 }));
+
 
 // Middleware for parsing JSON
 app.use(bodyParser.json());
