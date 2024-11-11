@@ -82,22 +82,22 @@
 //   setupMongoDB();
 // });
 
-
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const express = require('express');
 const submitContact = require('./submit-contact');
 
 const app = express();
-app.use(express.json());
-app.use(cors({ origin: 'https://portfolio-teal-eight-46.vercel.app' }));
-app.use(submitContact);
+const PORT = process.env.PORT || 3000; // Ensure PORT is defined
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: 'https://portfolio-teal-eight-46.vercel.app' })); // Apply CORS for specific origin
 app.use(bodyParser.json());
+app.use(express.json()); // Ensure JSON parsing is included
+
+// Mount routes
+app.use(submitContact);
 
 // Create MySQL connection with hardcoded credentials
 const db = mysql.createConnection({
@@ -117,41 +117,15 @@ db.connect(err => {
   }
 });
 
-// Endpoint to insert contact data
-app.post('/api/submit-contact', (req, res) => {
-  const { username, email, phone_no, message } = req.body;
-
-  if (!username || !email || !phone_no || !message) {
-    return res.status(400).json({ error: 'All fields are required' });
-  }
-
-  const query = 'INSERT INTO contacts (username, email, phone_no, message) VALUES (?, ?, ?, ?)';
-
-  db.query(query, [username, email, phone_no, message], (err, result) => {
-    if (err) {
-      console.error('Error inserting data:', err);
-      return res.status(500).json({ error: 'Server error', details: err.message });
-    }
-    return res.status(201).json({ message: 'Contact details saved successfully' });
-  });
-});
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
-
+// Handle preflight `OPTIONS` request for CORS
 app.options('/api/submit-contact', (req, res) => {
   res.header('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app');
-  res.header('Access-Control-Allow-Methods', 'POST');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
   res.sendStatus(200);
 });
-
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
-
