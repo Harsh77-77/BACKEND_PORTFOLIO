@@ -39,22 +39,10 @@
 // };
 
 
-
 const express = require('express');
 const mysql = require('mysql2');
-const bodyParser = require('body-parser');
-const cors = require('cors');
 
-const app = express();
-const PORT = 5000;
-
-// Middleware
-app.use(cors({
-  origin: 'https://portfolio-teal-eight-46.vercel.app', // Allow only your frontend origin
-  methods: 'GET,POST',
-  allowedHeaders: 'Content-Type',
-  credentials: true // If your request uses cookies or HTTP authentication
-}));
+const router = express.Router();
 
 // Create MySQL connection
 const db = mysql.createConnection({
@@ -62,7 +50,7 @@ const db = mysql.createConnection({
   user: 'sql12744074',
   password: 'aXcfgetGU3',
   database: 'sql12744074',
-  port: 3306
+  port: 3306,
 });
 
 // Connect to MySQL
@@ -75,21 +63,22 @@ db.connect(err => {
 });
 
 // Endpoint to insert contact data
-app.post('/submit-contact', (req, res) => {
+router.post('/submit-contact', (req, res) => {
   const { username, email, phone_no, message } = req.body;
+
+  if (!username || !email || !phone_no || !message) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
   const query = 'INSERT INTO contacts (username, email, phone_no, message) VALUES (?, ?, ?, ?)';
   
   db.query(query, [username, email, phone_no, message], (err, result) => {
     if (err) {
       console.error('Error inserting data:', err);
-      res.status(500).send({ error: 'Server error', details: err.message });
-    } else {
-      res.status(201).send({ message: 'Contact details saved successfully' });
+      return res.status(500).json({ error: 'Server error', details: err.message });
     }
+    return res.status(201).json({ message: 'Contact details saved successfully' });
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+module.exports = router;

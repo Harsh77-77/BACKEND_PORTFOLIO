@@ -118,7 +118,7 @@ db.connect(err => {
 });
 
 // Endpoint to insert contact data
-app.post('/submit-contact', (req, res) => {
+app.post('/api/submit-contact', (req, res) => {
   const { username, email, phone_no, message } = req.body;
   const query = 'INSERT INTO contacts (username, email, phone_no, message) VALUES (?, ?, ?, ?)';
   
