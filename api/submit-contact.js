@@ -39,12 +39,11 @@
 // };
 
 
-
 const express = require('express');
 const mysql = require('mysql2');
 const router = express.Router();
 
-// Create MySQL connection pool with hardcoded credentials
+// Create MySQL connection pool
 const pool = mysql.createPool({
   host: 'sql12.freesqldatabase.com',
   user: 'sql12744074',
