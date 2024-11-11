@@ -39,12 +39,13 @@
 // };
 
 
+
 const express = require('express');
 const mysql = require('mysql2');
-
 const router = express.Router();
 
-// Create MySQL connection
+
+// Create MySQL connection with hardcoded credentials
 const db = mysql.createConnection({
   host: 'sql12.freesqldatabase.com',
   user: 'sql12744074',
@@ -63,7 +64,7 @@ db.connect(err => {
 });
 
 // Endpoint to insert contact data
-router.post('/submit-contact', (req, res) => {
+router.post('/api/submit-contact', (req, res) => {
   const { username, email, phone_no, message } = req.body;
 
   if (!username || !email || !phone_no || !message) {
@@ -71,7 +72,7 @@ router.post('/submit-contact', (req, res) => {
   }
 
   const query = 'INSERT INTO contacts (username, email, phone_no, message) VALUES (?, ?, ?, ?)';
-  
+
   db.query(query, [username, email, phone_no, message], (err, result) => {
     if (err) {
       console.error('Error inserting data:', err);
