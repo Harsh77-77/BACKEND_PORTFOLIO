@@ -84,7 +84,6 @@
 
 
 const express = require('express');
-const mysql = require('mysql2');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const submitContact = require('./submit-contact');
@@ -94,26 +93,16 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware for CORS
 app.use(cors({
-  origin: 'https://portfolio-teal-eight-46.vercel.app', // Specify your frontend domain here
-  methods: 'GET, POST, OPTIONS',
-  allowedHeaders: 'Content-Type',
+  origin: 'https://portfolio-teal-eight-46.vercel.app',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 
 // Middleware for parsing JSON
 app.use(bodyParser.json());
-app.use(express.json());
 
 // Mount routes
 app.use(submitContact);
-
-// Handle preflight OPTIONS request globally
-app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.sendStatus(200);
-});
 
 // Start server
 app.listen(PORT, () => {

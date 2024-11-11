@@ -44,23 +44,16 @@ const express = require('express');
 const mysql = require('mysql2');
 const router = express.Router();
 
-
-// Create MySQL connection with hardcoded credentials
-const db = mysql.createConnection({
+// Create MySQL connection pool with hardcoded credentials
+const pool = mysql.createPool({
   host: 'sql12.freesqldatabase.com',
   user: 'sql12744074',
   password: 'aXcfgetGU3',
   database: 'sql12744074',
   port: 3306,
-});
-
-// Connect to MySQL
-db.connect(err => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err);
-  } else {
-    console.log('Connected to MySQL database');
-  }
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
 // Endpoint to insert contact data
@@ -73,13 +66,31 @@ router.post('/api/submit-contact', (req, res) => {
 
   const query = 'INSERT INTO contacts (username, email, phone_no, message) VALUES (?, ?, ?, ?)';
 
-  db.query(query, [username, email, phone_no, message], (err, result) => {
+  pool.query(query, [username, email, phone_no, message], (err, result) => {
     if (err) {
       console.error('Error inserting data:', err);
       return res.status(500).json({ error: 'Server error', details: err.message });
     }
     return res.status(201).json({ message: 'Contact details saved successfully' });
   });
+});
+
+// Create table if not exists
+pool.query(`
+  CREATE TABLE IF NOT EXISTS contacts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone_no VARCHAR(20) NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`, (err) => {
+  if (err) {
+    console.error('Error creating table:', err);
+  } else {
+    console.log('Contacts table created or already exists');
+  }
 });
 
 module.exports = router;
