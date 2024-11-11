@@ -93,11 +93,11 @@ const PORT = 5000;
 
 // Middleware
 app.use(cors({
-  origin: '*', // Allow all origins; can be restricted for security
+  origin: 'https://portfolio-teal-eight-46.vercel.app', // Allow only your frontend origin
   methods: 'GET,POST',
-  allowedHeaders: 'Content-Type'
+  allowedHeaders: 'Content-Type',
+  credentials: true // If your request uses cookies or HTTP authentication
 }));
-app.use(bodyParser.json());
 
 // Create MySQL connection
 const db = mysql.createConnection({
