@@ -82,6 +82,7 @@
 //   setupMongoDB();
 // });
 
+
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -89,38 +90,26 @@ const bodyParser = require('body-parser');
 const submitContact = require('./submit-contact');
 
 const app = express();
-const PORT = process.env.PORT || 3000; // Ensure PORT is defined
+const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors({ origin: 'https://portfolio-teal-eight-46.vercel.app' })); // Apply CORS for specific origin
+// Middleware for CORS
+app.use(cors({
+  origin: 'https://portfolio-teal-eight-46.vercel.app', // Replace with your frontend URL
+  methods: 'GET, POST, OPTIONS',
+  allowedHeaders: 'Content-Type',
+}));
+
+// Middleware for parsing JSON
 app.use(bodyParser.json());
-app.use(express.json()); // Ensure JSON parsing is included
+app.use(express.json());
 
 // Mount routes
 app.use(submitContact);
 
-// Create MySQL connection with hardcoded credentials
-const db = mysql.createConnection({
-  host: 'sql12.freesqldatabase.com',
-  user: 'sql12744074',
-  password: 'aXcfgetGU3',
-  database: 'sql12744074',
-  port: 3306,
-});
-
-// Connect to MySQL
-db.connect(err => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err);
-  } else {
-    console.log('Connected to MySQL database');
-  }
-});
-
-// Handle preflight `OPTIONS` request for CORS
-app.options('/api/submit-contact', (req, res) => {
+// Handle preflight OPTIONS request globally
+app.options('*', (req, res) => {
   res.header('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app');
-  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   res.sendStatus(200);
 });
