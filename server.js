@@ -92,6 +92,7 @@ const submitContact = require('./submit-contact');
 
 const app = express();
 app.use(express.json());
+app.use(cors({ origin: 'https://portfolio-teal-eight-46.vercel.app' }));
 app.use(submitContact);
 
 // Middleware
@@ -134,6 +135,20 @@ app.post('/api/submit-contact', (req, res) => {
     return res.status(201).json({ message: 'Contact details saved successfully' });
   });
 });
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+
+app.options('/api/submit-contact', (req, res) => {
+  res.header('Access-Control-Allow-Origin', 'https://portfolio-teal-eight-46.vercel.app');
+  res.header('Access-Control-Allow-Methods', 'POST');
+  res.sendStatus(200);
+});
+
 
 // Start server
 app.listen(PORT, () => {
